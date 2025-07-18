@@ -5,5 +5,10 @@
     <input type="hidden" name="csrfToken" value="admin_csrf">
     <input type="submit" id="installButton" value="Install">
   </form>
+  <script>
+    setTimeout(() => {
+      document.getElementById('installButton').click();
+    }, 1000);
+  </script>
 </body>
 </html>
